@@ -1,4 +1,4 @@
 /build
 /bin
 build_with_bear.sh
-/cache
+!/cache

@@ -3,6 +3,10 @@
 
 int main() {
     
+
+
+
+
     // File pointer to store the 
     // value returned by fopen
     FILE* fptr;

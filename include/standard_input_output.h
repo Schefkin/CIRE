@@ -4,6 +4,6 @@
 #include <stdio.h>
 
 int is_standard_input_output(char*, int, FILE*);
-int write_say(FILE*);
+int write_say(char*, int, FILE*);
 
 #endif

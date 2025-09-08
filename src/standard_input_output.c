@@ -1,66 +1,45 @@
 #include "standard_input_output.h"
+#include "helper_tools.h"
 #include <regex.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // return the amount by which I have to move
 int is_standard_input_output(char *s, int i, FILE *fptr) {
+
   // check if Say
   if (memcmp("Say", s + i, 3) == 0) {
-    // TODO creation of substring should be handeled by a helper tool
 
-    // Say
-    char *start = s + i;
+    // grammar check
+    char *regex = "Say, \"[^\"]*\"\\(, \\?[[:alnum:]]\\+\\)\\?[.]";
 
-    // .
-    char *end = strchr(s + i + 1, '.');
+    char *error_message = "Syntax error\n"
+                          "Correct usage:\n\n"
+                          "Say, \"Hello world!\".\n"
+                          "or\n"
+                          "Say, \"Hello %%s\", [varName].\n\n";
 
-    // +1 to include the dot at the end, because indexing of string begins at 0
-    // but initialisation of array has to be one +1 element
-    int extracted_str_len = end - start + 1;
+    int vc = vibe_check(s + i, regex);
+    if (vc == -1) {
+      printf("%s", error_message);
+      return -1;
+    }
 
-    // initialise string with the length os len
-    // "Hi" would need 3 bytes in this case H + i + '\0'
-    char ss[extracted_str_len + 1];
+    // generate substring from Say to .
+    char *ss = generate_substring(s + i);
 
-    strncpy(ss, start, extracted_str_len);
-    ss[extracted_str_len] = '\0';
+    int chars_eaten = write_say(ss, fptr);
 
-    return write_say(ss, fptr);
+    free(ss);
+
+    return chars_eaten;
   }
 
   return 0;
 }
 
 int write_say(char *ss, FILE *fptr) {
-  // grammar checks
-
-  // Variable to store initial regex()
-  regex_t regex;
-
-  // Variable for return type
-  int regex_value;
-
-  // Creation of regEx
-  // POSIX values are used in regcomp
-  regex_value =
-      regcomp(&regex, "Say, \"[^\"]*\"\\(, \\?[[:alnum:]]\\+\\)\\?[.]", 0);
-
-  // Comparing pattern above with string in reg
-  regex_value = regexec(&regex, ss, 0, NULL, 0);
-
-  if (regex_value != 0) {
-    printf("Syntax error\n");
-    printf("Correct usage:\n\n");
-    printf("Say, \"Hello world!\".\n");
-    printf("or\n");
-    printf("Say, \"Hello %%s\", [varName].\n\n");
-    return -1;
-  }
-
-  // Free compiled regex
-  regfree(&regex);
-
   // extract the value between first " and .
   // char after first quote
   char *start = strchr(ss, '"');
@@ -88,6 +67,7 @@ int write_say(char *ss, FILE *fptr) {
 
   // gets the length of the current string + 1(dot at the end)
   int line_length = strlen(ss) - strlen(result) + 1;
+
   // returns the amount of chars eaten - last char which is incremented at the
   // end of the main while loop
   return line_length;

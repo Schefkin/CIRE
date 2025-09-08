@@ -18,7 +18,7 @@ int is_standard_input_output(char *s, int i, FILE *fptr) {
                           "Correct usage:\n\n"
                           "Say, \"Hello world!\".\n"
                           "or\n"
-                          "Say, \"Hello %%s\", [varName].\n\n";
+                          "Say, \"Hello %s\", [varName].\n\n";
 
     int vc = vibe_check(s + i, regex);
     if (vc == -1) {

@@ -6,25 +6,33 @@
 // return the amount by which I have to move
 int is_standard_input_output(char *s, int i, FILE *fptr) {
   // check if Say
-  // char ss_say[4];
-  // strncpy(ss_say, s + i, 3);
-  // ss_say[3] = '\0';
-  //
-  // if (strcmp("Say", ss_say) == 0) {
-  //   return write_say(fptr, s, i);
-  // }
-
   if (memcmp("Say", s + i, 3) == 0) {
-    // TODO create a substring from Say ... to "."
-    // pass the substring into write_say
+    // TODO creation of substring should be handeled by a helper tool
 
-    return write_say(s, i, fptr);
+    // Say
+    char *start = s + i;
+
+    // .
+    char *end = strchr(s + i + 1, '.');
+
+    // +1 to include the dot at the end, because indexing of string begins at 0
+    // but initialisation of array has to be one +1 element
+    int extracted_str_len = end - start + 1;
+
+    // initialise string with the length os len
+    // "Hi" would need 3 bytes in this case H + i + '\0'
+    char ss[extracted_str_len + 1];
+
+    strncpy(ss, start, extracted_str_len);
+    ss[extracted_str_len] = '\0';
+
+    return write_say(ss, fptr);
   }
 
   return 0;
 }
 
-int write_say(char *s, int i, FILE *fptr) {
+int write_say(char *ss, FILE *fptr) {
   // grammar checks
 
   // Variable to store initial regex()
@@ -34,60 +42,53 @@ int write_say(char *s, int i, FILE *fptr) {
   int regex_value;
 
   // Creation of regEx
-  // later improve the regex maybe, groups did not work for some reason, check
-  // if dot is really being read value = regcomp(&reegex, "Say, \"[
-  // a-zA-Z%\\]*\"(, [a-zA-Z0-9]+)?\\.", 0);
-  // Say, "[^"]*"(, [a-zA-Z\d]+)?\.
-  regex_value = regcomp(&regex, "Say, \"[^\"]*\".", 0);
+  // POSIX values are used in regcomp
+  regex_value =
+      regcomp(&regex, "Say, \"[^\"]*\"\\(, \\?[[:alnum:]]\\+\\)\\?[.]", 0);
 
   // Comparing pattern above with string in reg
-  regex_value = regexec(&regex, s + i, 0, NULL, 0);
+  regex_value = regexec(&regex, ss, 0, NULL, 0);
 
   if (regex_value != 0) {
-    // TODO display on which line the error occurred
-    // TODO return and error check for -1 in compiler.c, create error check
-    // helper func in compiler.c and let each function/keyword handle its error
-    // handling
-
-    // create a line counter in compiler.c that
-    // increments each time "\n" is passed and pass that value into this func
-    // for error checking purpose
     printf("Syntax error\n");
-    printf("Correct usage: Say, \"Hello world!\".");
-    return 0;
+    printf("Correct usage:\n\n");
+    printf("Say, \"Hello world!\".\n");
+    printf("or\n");
+    printf("Say, \"Hello %%s\", [varName].\n\n");
+    return -1;
   }
 
   // Free compiled regex
   regfree(&regex);
 
-  // extract the value between quotes
+  // extract the value between first " and .
   // char after first quote
-  char *start = strchr(s + i, '"');
+  char *start = strchr(ss, '"');
 
-  // second quote
-  char *end = strchr(start + 1, '"');
+  // .
+  char *end = strchr(start + 1, '.');
 
-  // from after first quote to end excluding last quote
+  // from after first quote to end excluding .
   int extracted_str_len = end - start - 1;
 
-  // initialise string with the length os len
-  // "Hi" would need 3 bytes in this case H + i + '\0'
+  // initialise string with the given length
+  // "Hi" would need the length of 3 in this case H + i + '\0'
   char str[extracted_str_len + 1];
 
-  // Copy extrctd_str_len - 1(because last char will be " which I want to avoid)
-  // chars starting from start + 1(the first char after quote) to str
+  // chars starting from start + 1(the first char after quote) to .
   strncpy(str, start + 1, extracted_str_len);
   str[extracted_str_len] = '\0';
 
   // write to the c file
-  fprintf(fptr, "printf(\"%s\");\n", str);
+  fprintf(fptr, "printf(\"%s);\n", str);
 
   // calculate the amount of chars that were used for the current line
   // gets a string that equals to (closest . + remaining s)
-  char *result = strstr(s + i, ".");
+  char *result = strstr(ss, ".");
 
   // gets the length of the current string + 1(dot at the end)
-  int line_length = strlen(s + i) - strlen(result) + 1;
-  // returns the amount of chars eaten
+  int line_length = strlen(ss) - strlen(result) + 1;
+  // returns the amount of chars eaten - last char which is incremented at the
+  // end of the main while loop
   return line_length;
 }

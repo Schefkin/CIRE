@@ -4,6 +4,7 @@
 
 void compile(char *program) {
   int c = 0;
+  int line_number = 1;
   // temporary
   FILE *fptr;
 
@@ -17,16 +18,33 @@ void compile(char *program) {
 
   // while end of program is not reached continue
   while (program[c] != '\0') {
-    // check for whitespace first to make program faster a bit
+
+    // skip the whitespace
+    if (program[c] == ' ') {
+      c++;
+      continue;
+    }
+
     // check if it's in the stdio
     chars_eaten = is_standard_input_output(program, c, fptr);
-    // error check is chars_eaten is -1, if error close all files and stop the
-    // program without doing shit
+    if (chars_eaten == -1) {
+      error_checker(line_number, fptr);
+      return;
+    }
     c += chars_eaten;
 
     // check if it's a keyword
 
-    // printf("%c", program[c]);
+    // increment the line if '\n is hit'
+    if (program[c] == '\n') {
+      line_number++;
+      c++;
+      continue;
+    }
+
+    // goto next char
+    // later do sth about this logic, it shouldn't just increment, it should
+    // enforce language grammar
     c++;
   }
 
@@ -34,4 +52,15 @@ void compile(char *program) {
   fprintf(fptr, "return 0;\n}");
   // Close the file
   fclose(fptr);
+}
+
+void error_checker(int line, FILE *fptr) {
+  // print error msg
+  printf("Error occurred at line %d", line);
+
+  // close the file
+  fprintf(fptr, "// error occurred around here");
+  fclose(fptr);
+
+  return;
 }

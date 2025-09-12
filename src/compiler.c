@@ -40,6 +40,8 @@ void ciretoc(char *program, char *filename) {
     c += chars_eaten;
 
     // check if it's a keyword
+    // TODO create a compile_keywords.c file that has compileXXX routines in a
+    // similar way to is_stdio function
 
     // increment the line if '\n is hit'
     if (program[c] == '\n') {

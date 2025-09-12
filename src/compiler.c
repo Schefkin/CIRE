@@ -1,8 +1,11 @@
 #include "compiler.h"
 #include "standard_input_output.h"
 #include <stdio.h>
+#include <stdlib.h>
 
-void compile(char *program) {
+// main logic here
+// this function parses .cire file and generates the .c extention exuivalent
+void ciretoc(char *program, char *filename) {
   int c = 0;
   int line_number = 1;
   // temporary
@@ -11,7 +14,10 @@ void compile(char *program) {
   int chars_eaten = 0;
 
   // Open a file in writing mode
-  fptr = fopen("somename.c", "w");
+  char buffer[256];
+  snprintf(buffer, sizeof(buffer), "%s.c", filename);
+
+  fptr = fopen(buffer, "w");
 
   // Write some text to the file
   fprintf(fptr, "#include <stdio.h>\nint main() {\n");
@@ -52,6 +58,17 @@ void compile(char *program) {
   fprintf(fptr, "return 0;\n}");
   // Close the file
   fclose(fptr);
+}
+
+void compile(char *program, char *filename) {
+  ciretoc(program, filename);
+  // compile the c file and delete the .c file
+  char buffer[256];
+  snprintf(buffer, sizeof(buffer), "gcc %s.c -o %s", filename, filename);
+  system(buffer);
+
+  snprintf(buffer, sizeof(buffer), "rm -f %s.c", filename);
+  system(buffer);
 }
 
 void error_checker(int line, FILE *fptr) {

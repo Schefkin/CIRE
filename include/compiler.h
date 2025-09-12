@@ -3,7 +3,8 @@
 
 #include <stdio.h>
 
-void compile(char*);
+void ciretoc(char*, char*);
+void compile(char*, char*);
 void error_checker(int, FILE*);
 
 #endif

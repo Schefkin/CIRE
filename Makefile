@@ -8,7 +8,7 @@ OBJ_DIR := build
 BIN_DIR := bin
 
 # Target executable name
-TARGET := $(BIN_DIR)/cirec
+TARGET := $(BIN_DIR)/cire
 
 # Source and object files
 SRCS := $(wildcard $(SRC_DIR)/*.c)

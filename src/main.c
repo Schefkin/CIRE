@@ -1,12 +1,17 @@
+#include "compiler.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "compiler.h"
+#include <string.h>
 
 int main(int argc, char *argv[]) {
 
   // error checks
-  if (argc != 2) {
-    printf("Usage: cirec xxx.cire");
+  if (argc != 3) {
+    printf("Usage: cire compile/ciretoc xxx.cire");
+    return 0;
+  }
+  if (strcmp(argv[1], "compile") != 0 && strcmp(argv[1], "ciretoc") != 0) {
+    printf("Usage: cire compile/ciretoc xxx.cire");
     return 0;
   }
 
@@ -14,11 +19,11 @@ int main(int argc, char *argv[]) {
   char *buffer = NULL;
   size_t len;
 
-  fp = fopen(argv[1], "rb");
+  fp = fopen(argv[2], "rb");
 
   // check if file exists
   if (!fp) {
-    printf("file %s does not exist", argv[1]);
+    printf("file %s does not exist", argv[2]);
     return 0;
   }
 
@@ -35,8 +40,24 @@ int main(int argc, char *argv[]) {
   fclose(fp);
   buffer[len] = '\0';
 
+  // create string that contains simply the filename
+  char *filename = strdup(argv[2]);
+  int filename_length = strlen(filename);
+  for (int i = 0; i < filename_length; i++) {
+    if (filename[i] == '.') {
+      filename[i] = '\0';
+      break;
+    }
+  }
+
+  // redirect toward the correct function
+  if (strcmp(argv[1], "compile") == 0) {
+    compile(buffer, filename);
+  } else if (strcmp(argv[1], "ciretoc") == 0) {
+    ciretoc(buffer, filename);
+  }
   // buffer now contains the content of your file; do what you want with it
-  compile(buffer);
+  // compile(buffer);
 
   free(buffer);
   buffer = NULL;
